@@ -10,7 +10,9 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^2.7.2"
+    "@astrojs/svelte": "^3.1.0",
+    "astro": "^2.7.2",
+    "svelte": "^4.0.0"
   },
   "devDependencies": {
     "@astrojs/ts-plugin": "^1.0.10"
