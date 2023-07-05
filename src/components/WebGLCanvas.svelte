@@ -28,9 +28,9 @@
             alert("Unable to initialize WebGL. Your browser may not support it.");
             return;
         }
-        let vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource) as WebGLShader;
-        let fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource) as WebGLShader;
-        let program = createProgram(gl, vertexShader, fragmentShader) as WebGLProgram;
+        let vertexShader = webglUtils.createShader(gl, gl.VERTEX_SHADER, vertexShaderSource) as WebGLShader;
+        let fragmentShader = webglUtils.createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource) as WebGLShader;
+        let program = webglUtils.createProgram(gl, vertexShader, fragmentShader) as WebGLProgram;
         let positionAttributeLocation = gl.getAttribLocation(program, "a_position");
         let positionBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -61,31 +61,6 @@
         let primitiveType = gl.TRIANGLES;
         let count = 3;
         gl.drawArrays(primitiveType, offset, count);
-    }
-    function createShader(gl: WebGL2RenderingContext, type: number, source: string) {
-        let shader = gl.createShader(type) as WebGLShader;
-        gl.shaderSource(shader, source);
-        gl.compileShader(shader);
-        let success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-        if (success) {
-            return shader;
-        }
-
-        console.log(gl.getShaderInfoLog(shader));
-        gl.deleteShader(shader);
-    }
-    function createProgram(gl: WebGL2RenderingContext, vertexShader: WebGLShader, fragmentShader: WebGLShader) {
-        let program = gl.createProgram() as WebGLProgram;
-        gl.attachShader(program, vertexShader);
-        gl.attachShader(program, fragmentShader);
-        gl.linkProgram(program);
-        let success = gl.getProgramParameter(program, gl.LINK_STATUS);
-        if (success) {
-            return program;
-        }
-
-        console.log(gl.getProgramInfoLog(program));
-        gl.deleteProgram(program);
     }
     window.addEventListener("load", () =>{main()});
 </script>
