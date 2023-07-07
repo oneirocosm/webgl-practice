@@ -18,11 +18,13 @@
     `;
     export let fragmentShaderSource: string = `#version 300 es
     precision mediump float;
+
+    uniform vec4 u_color;
  
     out vec4 outColor;
  
     void main() {
-      outColor = vec4(1, 0, 0.5, 1);
+      outColor = u_color;
     }
     `;
     function main() {
@@ -38,6 +40,7 @@
         let program = webglUtils.createProgram(gl, vertexShader, fragmentShader) as WebGLProgram;
         let positionAttributeLocation = gl.getAttribLocation(program, "a_position");
         let resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
+        let colorLocation = gl.getUniformLocation(program, "u_color");
         let positionBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
         let positions = [
@@ -68,9 +71,36 @@
         gl.useProgram(program);
         gl.bindVertexArray(vao);
         gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
-        let primitiveType = gl.TRIANGLES;
-        let count = 6;
-        gl.drawArrays(primitiveType, offset, count);
+    
+        for (let i = 0; i < 50; ++i) {
+            setRectangle(gl, randomInt(300), randomInt(300), randomInt(300), randomInt(300));
+
+            gl.uniform4f(colorLocation, Math.random(), Math.random(), Math.random(), 1);
+            let primitiveType = gl.TRIANGLES;
+            let count = 6;
+            gl.drawArrays(primitiveType, offset, count);
+        }
+    }
+    function randomInt(range: number): number {
+        return Math.floor(Math.random() * range);
+    }
+    function setRectangle(gl: WebGL2RenderingContext, x: number, y: number, width: number, height: number) {
+        let x1 = x;
+        let x2 = x + width;
+        let y1 = y;
+        let y2 = y + height;
+
+        // what we do here only works because we have one buffer
+        // we would have to bind to ARRAY_BUFFER first normally
+
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+            x1, y1,
+            x2, y1,
+            x1, y2,
+            x1, y2,
+            x2, y1,
+            x2, y2,
+        ]), gl.STATIC_DRAW);
     }
     window.addEventListener("load", () =>{main()});
 </script>
