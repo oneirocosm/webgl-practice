@@ -7,24 +7,20 @@
  
     in vec2 a_position;
 
-    uniform vec2 u_resolution;
-
     void main() {
-        vec2 zeroToOne = a_position / u_resolution;
-        vec2 zeroToTwo = zeroToOne * 2.0;
-        vec2 clipSpace = zeroToTwo - 1.0;
-        gl_Position = vec4(clipSpace, 0, 1);
+        gl_Position = vec4(a_position, 0, 1);
     }
     `;
     export let fragmentShaderSource: string = `#version 300 es
     precision mediump float;
 
-    uniform vec4 u_color;
+    uniform vec2 u_resolution;
  
     out vec4 outColor;
  
     void main() {
-      outColor = u_color;
+        vec2 st = gl_FragCoord.xy/u_resolution;
+        outColor = vec4(st, 0.0, 1.0);
     }
     `;
     function main() {
@@ -40,16 +36,16 @@
         let program = webglUtils.createProgram(gl, vertexShader, fragmentShader) as WebGLProgram;
         let positionAttributeLocation = gl.getAttribLocation(program, "a_position");
         let resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
-        let colorLocation = gl.getUniformLocation(program, "u_color");
+        let timeLocation = gl.getUniformLocation(program, "u_time");
         let positionBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
         let positions = [
-            10, 20,
-            80, 20,
-            10, 30,
-            10, 30,
-            80, 20,
-            80, 30,
+            -1.0, -1.0,
+            1.0, -1.0,
+            -1.0, 1.0,
+            -1.0, 1.0,
+            1.0, -1.0,
+            1.0, 1.0,
         ];
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
         let vao = gl.createVertexArray();
@@ -69,38 +65,12 @@
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         gl.useProgram(program);
-        gl.bindVertexArray(vao);
         gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
-    
-        for (let i = 0; i < 50; ++i) {
-            setRectangle(gl, randomInt(300), randomInt(300), randomInt(300), randomInt(300));
+        gl.uniform1f(timeLocation, 1.0);
 
-            gl.uniform4f(colorLocation, Math.random(), Math.random(), Math.random(), 1);
-            let primitiveType = gl.TRIANGLES;
-            let count = 6;
-            gl.drawArrays(primitiveType, offset, count);
-        }
-    }
-    function randomInt(range: number): number {
-        return Math.floor(Math.random() * range);
-    }
-    function setRectangle(gl: WebGL2RenderingContext, x: number, y: number, width: number, height: number) {
-        let x1 = x;
-        let x2 = x + width;
-        let y1 = y;
-        let y2 = y + height;
-
-        // what we do here only works because we have one buffer
-        // we would have to bind to ARRAY_BUFFER first normally
-
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-            x1, y1,
-            x2, y1,
-            x1, y2,
-            x1, y2,
-            x2, y1,
-            x2, y2,
-        ]), gl.STATIC_DRAW);
+        let primitiveType = gl.TRIANGLES;
+        let count = 6;
+        gl.drawArrays(primitiveType, offset, count);
     }
     window.addEventListener("load", () =>{main()});
 </script>
